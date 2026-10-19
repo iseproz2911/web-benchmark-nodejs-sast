@@ -1,0 +1,38 @@
+import express from 'express';
+import path from 'node:path';
+import { ROOT, UPLOADS } from './config.js';
+import { loadIdentity } from './middleware/auth.js';
+import { auth } from './routes/auth.js';
+import { products } from './routes/products.js';
+import { reviews } from './routes/reviews.js';
+import { profile } from './routes/profile.js';
+import { uploads } from './routes/uploads.js';
+import { documents } from './routes/documents.js';
+import { admin } from './routes/admin.js';
+import { orders } from './routes/orders.js';
+import { api } from './routes/api.js';
+import { page } from './lib/html.js';
+
+export const app = express();
+app.disable('x-powered-by');
+app.use(express.urlencoded({ extended: false, limit: '16kb' }));
+app.use(express.json({ limit: '16kb' }));
+app.use('/assets', express.static(path.join(ROOT, 'public')));
+app.use('/media', express.static(UPLOADS, { index: false, dotfiles: 'deny' }));
+app.use(loadIdentity);
+app.get('/', (req, res) => res.redirect('/products'));
+app.get('/health', (req, res) => res.json({ status: 'ok', application: 'corner-store' }));
+app.use('/auth', auth);
+app.use('/products', products);
+app.use('/reviews', reviews);
+app.use('/profile', profile);
+app.use('/uploads', uploads);
+app.use('/documents', documents);
+app.use('/admin', admin);
+app.use('/orders', orders);
+app.use('/api', api);
+app.use((req, res) => res.status(404).send(page('Not found', '<h2>Page not found</h2>', req.user)));
+app.use((error, req, res, next) => {
+  console.error('Request failed:', error.message);
+  res.status(error.status === 413 ? 413 : 500).send('Request could not be processed.');
+});
