@@ -1,4 +1,4 @@
-# Corner Store — local Node.js source benchmark
+# Corner Store - local Node.js source benchmark
 
 Intentionally vulnerable, independent training application. Run only on your own
 machine against its fictional seeded data. Never publish a running instance,
